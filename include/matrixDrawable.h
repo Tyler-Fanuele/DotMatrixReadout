@@ -1,4 +1,15 @@
+#include "../matrixLib/rpi-rgb-led-matrix/include/led-matrix.h"
+#include "../matrixLib/rpi-rgb-led-matrix/include/graphics.h"
+
 class MatrixDrawable 
 {
-    MatrixDrawable(int xOffset, int yOffset);
+    public:
+    MatrixDrawable(int xOffset, int yOffset, rgb_matrix::FrameCanvas* canvas) : _xOffset(xOffset), _yOffset(yOffset), _canvas(canvas) {}
+
+    virtual bool draw(void) = 0;
+
+    private:
+    int _xOffset;
+    int _yOffset;
+    rgb_matrix::FrameCanvas* _canvas;
 };

@@ -1,10 +1,3 @@
-// -*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil; -*-
-// Example of a clock. This is very similar to the text-example,
-// except that it shows the time :)
-//
-// This code is public domain
-// (but note, that the led-matrix library this depends on is GPL v2)
-
 #include "../matrixLib/rpi-rgb-led-matrix/include/led-matrix.h"
 #include "../matrixLib/rpi-rgb-led-matrix/include/graphics.h"
 

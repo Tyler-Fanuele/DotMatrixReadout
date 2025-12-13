@@ -3,7 +3,8 @@ CXXFLAGS=$(CFLAGS)
 
 SRCDIR=src/
 OBJDIR=.
-OBJECTS=$(OBJDIR)/display.o
+OBJECTS=$(OBJDIR)/display.o \
+	$(OBJDIR)/matrixWidget.o $(OBJDIR)/matrixDrawable.o
 BINARIES=display
 
 RGB_LIB_DISTRIBUTION=./matrixLib/rpi-rgb-led-matrix/
@@ -21,7 +22,13 @@ $(RGB_LIBRARY): FORCE
 display.o : src/main.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-display : display.o
+matrixWidget.o : src/matrixWidget.cxx
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+matrixDrawable.o : src/matrixDrawable.cxx
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+display : display.o matrixDrawable.o matrixWidget.o
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
 clean:
