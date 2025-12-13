@@ -166,20 +166,23 @@ int main(int argc, char *argv[]) {
     localtime_r(&next_time.tv_sec, &tm);
 
     int line_offset = 0;
-    for (const std::string &line : format_lines) {
-      strftime(text_buffer, sizeof(text_buffer), line.c_str(), &tm);
-      if (outline_font) {
-        rgb_matrix::DrawText(offscreen, *outline_font,
-                             x - 1, y + font.baseline() + line_offset,
-                             outline_color, NULL, text_buffer,
-                             letter_spacing - 2);
-      }
-      rgb_matrix::DrawText(offscreen, font,
+
+    strftime(text_buffer, sizeof(text_buffer), format_lines[0].c_str(), &tm);
+
+    rgb_matrix::DrawText(offscreen, font,
                            x, y + font.baseline() + line_offset,
                            color, NULL, text_buffer,
                            letter_spacing);
-      line_offset += font.height() + line_spacing;
-    }
+
+    line_offset += font.height() + line_spacing;    
+
+    strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
+    
+    rgb_matrix::DrawText(offscreen, font,
+                           x, y + font.baseline() + line_offset,
+                           color, NULL, text_buffer,
+                           letter_spacing);
+                          
 
     // Wait until we're ready to show it.
     clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next_time, NULL);
