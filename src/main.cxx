@@ -202,12 +202,12 @@ int main(int argc, char *argv[]) {
                              letter_spacing);
     }
 
-    const char* bitmapPath = "./icons/Attention.bmp";
+    const char* bitmapPath = "./assets/icons/Heart5x5.bmp";
 
     Magick::Image img;
     try {
       img.read(bitmapPath);              // path relative to cwd
-      img.scale(Magick::Geometry(8, 8));      // scale to 8x8
+      img.scale(Magick::Geometry(5, 5));      // scale to 8x8
       // Draw scaled image onto offscreen:
       for (int y = 0; y < (int)img.rows(); ++y) {
         for (int x = 0; x < (int)img.columns(); ++x) {
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
           uint8_t R = ScaleQuantumToChar(c.redQuantum());
           uint8_t G = ScaleQuantumToChar(c.greenQuantum());
           uint8_t B = ScaleQuantumToChar(c.blueQuantum());
-          offscreen->SetPixel(54 + x, 20 + y, R, G, B);
+          offscreen->SetPixel(56 + x, y  + line_offset, R, G, B);
         }
       }
     } catch (std::exception &e) {
