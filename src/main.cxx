@@ -1,5 +1,5 @@
-#include "../matrixLib/rpi-rgb-led-matrix/include/led-matrix.h"
-#include "../matrixLib/rpi-rgb-led-matrix/include/graphics.h"
+#include "../lib/rpi-rgb-led-matrix/include/led-matrix.h"
+#include "../lib/rpi-rgb-led-matrix/include/graphics.h"
 
 #include <getopt.h>
 #include <signal.h>
@@ -13,6 +13,14 @@
 #include <string>
 
 using namespace rgb_matrix;
+
+constexpr  char* FontDirectoryString = "./lib/rpi-rgb-led-matrix/fonts/";
+constexpr  char* LargeFontFileString = "7x14.bdf";
+constexpr  char* SmallFontFileString = "4x6.bdf";
+
+const std::string LargeFontString(std::string(FontDirectoryString) + std::string(LargeFontFileString));
+const std::string SmallFontString(std::string(FontDirectoryString) + std::string(SmallFontFileString));
+
 
 volatile bool interrupt_received = false;
 static void InterruptHandler(int signo) {
@@ -111,22 +119,28 @@ int main(int argc, char *argv[]) {
     format_lines.push_back("%H:%M");
   }
 
-  if (bdf_font_file == NULL) {
-    fprintf(stderr, "Need to specify BDF font-file with -f\n");
-    return usage(argv[0]);
-  }
 
   /*
    * Load font. This needs to be a filename with a bdf bitmap font.
    */
-  rgb_matrix::Font font;
-  if (!font.LoadFont(bdf_font_file)) {
-    fprintf(stderr, "Couldn't load font '%s'\n", bdf_font_file);
+  rgb_matrix::Font largeFont;
+  if (!largeFont.LoadFont(LargeFontString.c_str())) {
+    fprintf(stderr, "Couldn't load font '%s'\n", LargeFontString.c_str());
     return 1;
   }
   rgb_matrix::Font *outline_font = NULL;
   if (with_outline) {
-    outline_font = font.CreateOutlineFont();
+    outline_font = largeFont.CreateOutlineFont();
+  }
+
+  rgb_matrix::Font smallFont;
+  if (!smallFont.LoadFont(SmallFontString.c_str())) {
+    fprintf(stderr, "Couldn't load font '%s'\n", SmallFontString.c_str());
+    return 1;
+  }
+  rgb_matrix::Font *small_outline_font = NULL;
+  if (with_outline) {
+    small_outline_font = smallFont.CreateOutlineFont();
   }
 
   RGBMatrix *matrix = RGBMatrix::CreateFromOptions(matrix_options, runtime_opt);
@@ -162,17 +176,17 @@ int main(int argc, char *argv[]) {
 
     strftime(text_buffer, sizeof(text_buffer), format_lines[0].c_str(), &tm);
 
-    rgb_matrix::DrawText(offscreen, font,
-                           x, y + font.baseline() + line_offset,
+    rgb_matrix::DrawText(offscreen, largeFont,
+                           x, y + largeFont.baseline() + line_offset,
                            color, NULL, text_buffer,
                            letter_spacing);
 
-    line_offset += font.height() + line_spacing;    
+    line_offset += largeFont.height() + line_spacing;    
 
     strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
     
-    rgb_matrix::DrawText(offscreen, font,
-                           x, y + font.baseline() + line_offset,
+    rgb_matrix::DrawText(offscreen, smallFont,
+                           x, y + smallFont.baseline() + line_offset,
                            color, NULL, text_buffer,
                            letter_spacing);
                           

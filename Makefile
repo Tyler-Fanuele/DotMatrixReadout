@@ -7,7 +7,7 @@ OBJECTS=$(OBJDIR)/display.o \
 	$(OBJDIR)/matrixWidget.o $(OBJDIR)/matrixDrawable.o
 BINARIES=$(OBJDIR)/display
 
-RGB_LIB_DISTRIBUTION=./matrixLib/rpi-rgb-led-matrix/
+RGB_LIB_DISTRIBUTION=./lib/rpi-rgb-led-matrix/
 RGB_INCDIR=$(RGB_LIB_DISTRIBUTION)/include
 RGB_LIBDIR=$(RGB_LIB_DISTRIBUTION)/lib
 RGB_LIBRARY_NAME=rgbmatrix
