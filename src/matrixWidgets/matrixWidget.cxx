@@ -1,1 +1,1 @@
-#include "../../include/matrixWidgets/matrixWidget.h"
+#include <matrixWidget.h>

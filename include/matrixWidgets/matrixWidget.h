@@ -1,9 +1,10 @@
-#include "../../include/matrixWidgets/matrixDrawable.h"
+#include <matrixDrawable.h>
 
 class MatrixWidget : public MatrixDrawable{
-    MatrixWidget(int xOffset, int yOffset, rgb_matrix::FrameCanvas* canvas) : MatrixDrawable(xOffset, yOffset, canvas){}
+    public:
+    MatrixWidget(rgb_matrix::FrameCanvas* canvas) : MatrixDrawable(canvas){}
 
-    virtual bool draw(void) override
+    virtual void draw(void) override
     {
         if (_show == true)
         {

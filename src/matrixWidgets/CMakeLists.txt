@@ -18,4 +18,6 @@ target_include_directories(
   ${CMAKE_SOURCE_DIR}/include/matrixWidgets
 )
 
+target_link_libraries(MatrixWidgets PUBLIC RpiRgbLedMatrix)
+
 target_compile_features(MatrixWidgets PUBLIC cxx_std_20)

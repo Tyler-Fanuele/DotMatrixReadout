@@ -1,5 +1,5 @@
-#include "../lib/rpi-rgb-led-matrix/include/led-matrix.h"
-#include "../lib/rpi-rgb-led-matrix/include/graphics.h"
+#include <led-matrix.h>
+#include <graphics.h>
 #include <Magick++.h>
 
 #include <getopt.h>

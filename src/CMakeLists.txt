@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_subdirectory(matrixWidgets)     # source
-
 include_directories(/usr/include/GraphicsMagick)
 
 message(STATUS "Adding GraphicsMagick library")
@@ -24,14 +22,19 @@ if(TARGET build_rpi_rgb_matrix)
   add_dependencies(RpiRgbLedMatrix build_rpi_rgb_matrix)
 endif()
 
+target_include_directories(RpiRgbLedMatrix INTERFACE
+    ${CMAKE_SOURCE_DIR}/lib/rpi-rgb-led-matrix/include
+)
+
+add_subdirectory(matrixWidgets)     # source
 
 add_executable(display main.cxx)
 target_compile_features(display PUBLIC cxx_std_20)
 target_link_libraries(
     display 
-    MatrixWidgets 
     GraphicsMagick 
     RpiRgbLedMatrix
+    MatrixWidgets 
 )
 set_target_properties(display PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)

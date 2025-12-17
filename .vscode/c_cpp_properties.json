@@ -4,8 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/include/**",
-                "${workspaceFolder}/matrixLib/rpi-rgb-led-matrix/include",
-                "${workspaceFolder}/include"
+                "${workspaceFolder}/lib/rpi-rgb-led-matrix/include",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/include/matrixWidgets"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -1,4 +1,4 @@
-#include "../../include/matrixWidgets/matrixDrawable.h"
+#include <matrixDrawable.h>
 
 
 
