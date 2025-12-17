@@ -14,12 +14,9 @@
 
 using namespace rgb_matrix;
 
-constexpr  char* FontDirectoryString = "./lib/rpi-rgb-led-matrix/fonts/";
-constexpr  char* LargeFontFileString = "7x14.bdf";
-constexpr  char* SmallFontFileString = "4x6.bdf";
-
-
-
+const char* FontDirectoryString = "./lib/rpi-rgb-led-matrix/fonts/";
+const char* LargeFontFileString = "7x14.bdf";
+const char* SmallFontFileString = "4x6.bdf";
 
 volatile bool interrupt_received = false;
 static void InterruptHandler(int signo) {
@@ -166,8 +163,6 @@ int main(int argc, char *argv[]) {
 
   char text_buffer[256];
   struct timespec next_time;
-  next_time.tv_sec = time(NULL);
-  next_time.tv_nsec = 0;
   struct tm tm;
 
   int centerTimeSpacing = 5;
@@ -178,7 +173,11 @@ int main(int argc, char *argv[]) {
 
   while (!interrupt_received) {
     offscreen->Fill(bg_color.r, bg_color.g, bg_color.b);
-    localtime_r(&next_time.tv_sec, &tm);
+
+    // Sample current system time and convert to local broken-down time.
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    localtime_r(&now.tv_sec, &tm);
 
     int line_offset = 0;
 
@@ -189,23 +188,27 @@ int main(int argc, char *argv[]) {
                            color, NULL, text_buffer,
                            letter_spacing);
 
-    line_offset += largeFont.height() + line_spacing;    
+    line_offset += largeFont.height() + line_spacing;
 
-    strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
-    
-    rgb_matrix::DrawText(offscreen, smallFont,
-                           x + centerDateSpacing, y + smallFont.baseline() + line_offset,
-                           color, NULL, text_buffer,
-                           letter_spacing);
-                          
+    // Only draw a second line if the user provided one.
+    if (format_lines.size() > 1) {
+      strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
+      rgb_matrix::DrawText(offscreen, smallFont,
+                             x + centerDateSpacing, y + smallFont.baseline() + line_offset,
+                             color, NULL, text_buffer,
+                             letter_spacing);
+    }
+
+    // Compute absolute next-second time to sleep until (align to whole seconds).
+    next_time = now;
+    next_time.tv_sec += 1;
+    next_time.tv_nsec = 0;
 
     // Wait until we're ready to show it.
     clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next_time, NULL);
 
     // Atomic swap with double buffer
     offscreen = matrix->SwapOnVSync(offscreen);
-
-    next_time.tv_sec += 1;
   }
 
   // Finished. Shut down the RGB matrix.
