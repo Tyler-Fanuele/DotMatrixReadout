@@ -1,11 +1,11 @@
 CFLAGS=-Wall -O3 -g -Wextra -Wno-unused-parameter
 CXXFLAGS=$(CFLAGS)
 
-SRCDIR=src/
-OBJDIR=.
+SRCDIR=src
+OBJDIR=build
 OBJECTS=$(OBJDIR)/display.o \
 	$(OBJDIR)/matrixWidget.o $(OBJDIR)/matrixDrawable.o
-BINARIES=display
+BINARIES=$(OBJDIR)/display
 
 RGB_LIB_DISTRIBUTION=./matrixLib/rpi-rgb-led-matrix/
 RGB_INCDIR=$(RGB_LIB_DISTRIBUTION)/include
@@ -19,16 +19,16 @@ all : $(BINARIES)
 $(RGB_LIBRARY): FORCE
 	$(MAKE) -C $(RGB_LIBDIR)
 
-display.o : src/main.cxx
+$(OBJDIR)/display.o : $(SRCDIR)/main.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-matrixWidget.o : src/matrixWidget.cxx
+$(OBJDIR)/matrixWidget.o : $(SRCDIR)/matrixWidget.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-matrixDrawable.o : src/matrixDrawable.cxx
+$(OBJDIR)/matrixDrawable.o : $(SRCDIR)/matrixDrawable.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-display : display.o matrixDrawable.o matrixWidget.o
+$(OBJDIR)/display : $(OBJDIR)/display.o $(OBJDIR)/matrixDrawable.o $(OBJDIR)/matrixWidget.o
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
 clean:
