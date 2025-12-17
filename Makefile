@@ -1,6 +1,11 @@
 CFLAGS=-Wall -O3 -g -Wextra -Wno-unused-parameter
 CXXFLAGS=$(CFLAGS)
 
+# Allow optional Image/GraphicsMagick++ flags when available. The shell
+# calls are no-ops on systems without the tools (they'll return empty).
+MAGICK_CXXFLAGS?=$(shell GraphicsMagick++-config --cppflags --cxxflags 2>/dev/null || Magick++-config --cxxflags 2>/dev/null || echo)
+MAGICK_LDFLAGS?=$(shell GraphicsMagick++-config --ldflags --libs 2>/dev/null || Magick++-config --libs 2>/dev/null || echo)
+
 SRCDIR=src
 OBJDIR=build
 OBJECTS=$(OBJDIR)/display.o \
@@ -20,7 +25,7 @@ $(RGB_LIBRARY): FORCE
 	$(MAKE) -C $(RGB_LIBDIR)
 
 $(OBJDIR)/display.o : $(SRCDIR)/main.cxx
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)/matrixWidget.o : $(SRCDIR)/matrixWidget.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -29,7 +34,7 @@ $(OBJDIR)/matrixDrawable.o : $(SRCDIR)/matrixDrawable.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)/display : $(OBJDIR)/display.o $(OBJDIR)/matrixDrawable.o $(OBJDIR)/matrixWidget.o
-	$(CXX) $^ -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS) $(MAGICK_LDFLAGS)
 
 clean:
 	rm -f $(OBJECTS) $(BINARIES)

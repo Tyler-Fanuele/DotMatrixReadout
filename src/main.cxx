@@ -1,5 +1,6 @@
 #include "../lib/rpi-rgb-led-matrix/include/led-matrix.h"
 #include "../lib/rpi-rgb-led-matrix/include/graphics.h"
+#include <Magick++.h>
 
 #include <getopt.h>
 #include <signal.h>
@@ -58,6 +59,8 @@ static bool FullSaturation(const Color &c) {
 }
 
 int main(int argc, char *argv[]) {
+  // Initialize ImageMagick / GraphicsMagick++ library before any Magick++ use.
+  Magick::InitializeMagick(*argv);
   RGBMatrix::Options matrix_options;
   rgb_matrix::RuntimeOptions runtime_opt;
   if (!rgb_matrix::ParseOptionsFromFlags(&argc, &argv,
@@ -197,6 +200,27 @@ int main(int argc, char *argv[]) {
                              x + centerDateSpacing, y + smallFont.baseline() + line_offset,
                              color, NULL, text_buffer,
                              letter_spacing);
+    }
+
+    const char* bitmapPath = "./icons/Attention.bmp";
+
+    Magick::Image img;
+    try {
+      img.read(bitmapPath);              // path relative to cwd
+      img.scale(Magick::Geometry(8, 8));      // scale to 8x8
+      // Draw scaled image onto offscreen:
+      for (int y = 0; y < (int)img.rows(); ++y) {
+        for (int x = 0; x < (int)img.columns(); ++x) {
+          Magick::Color c = img.pixelColor(x, y);
+          // Convert Magick quantum to 0-255. Use the helper in the viewer:
+          uint8_t R = ScaleQuantumToChar(c.redQuantum());
+          uint8_t G = ScaleQuantumToChar(c.greenQuantum());
+          uint8_t B = ScaleQuantumToChar(c.blueQuantum());
+          offscreen->SetPixel(54 + x, 20 + y, R, G, B);
+        }
+      }
+    } catch (std::exception &e) {
+      fprintf(stderr, "Image load/scale error: %s\n", e.what());
     }
 
     // Compute absolute next-second time to sleep until (align to whole seconds).
