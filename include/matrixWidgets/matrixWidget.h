@@ -1,4 +1,4 @@
-#include "../include/matrixDrawable.h"
+#include "../../include/matrixWidgets/matrixDrawable.h"
 
 class MatrixWidget : public MatrixDrawable{
     MatrixWidget(int xOffset, int yOffset, rgb_matrix::FrameCanvas* canvas) : MatrixDrawable(xOffset, yOffset, canvas){}
