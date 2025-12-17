@@ -18,8 +18,7 @@ constexpr  char* FontDirectoryString = "./lib/rpi-rgb-led-matrix/fonts/";
 constexpr  char* LargeFontFileString = "7x14.bdf";
 constexpr  char* SmallFontFileString = "4x6.bdf";
 
-const std::string LargeFontString(std::string(FontDirectoryString) + std::string(LargeFontFileString));
-const std::string SmallFontString(std::string(FontDirectoryString) + std::string(SmallFontFileString));
+
 
 
 volatile bool interrupt_received = false;
@@ -36,7 +35,8 @@ static int usage(const char *progname) {
           "\t-d <time-format>  : Default '%%H:%%M'. See strftime()\n"
           "\t                    Can be provided multiple times for multiple "
           "lines\n"
-          "\t-f <font-file>    : Use given font.\n"
+          "\t-f <small-font-file>    : Use given font.\n"
+          "\t-F <large-font-file>    : Use given font.\n"
           "\t-x <x-origin>     : X-Origin of displaying text (Default: 0)\n"
           "\t-y <y-origin>     : Y-Origin of displaying text (Default: 0)\n"
           "\t-s <line-spacing> : Extra spacing between lines when multiple -d given\n"
@@ -76,19 +76,21 @@ int main(int argc, char *argv[]) {
   Color outline_color(0,0,0);
   bool with_outline = false;
 
-  const char *bdf_font_file = NULL;
+  const char *bdf_large_font_file = NULL;
+  const char *bdf_small_font_file = NULL;
   int x_orig = 0;
   int y_orig = 0;
   int letter_spacing = 0;
   int line_spacing = 0;
 
   int opt;
-  while ((opt = getopt(argc, argv, "x:y:f:C:B:O:s:S:d:")) != -1) {
+  while ((opt = getopt(argc, argv, "x:y:f:F:C:B:O:s:S:d:")) != -1) {
     switch (opt) {
     case 'd': format_lines.push_back(optarg); break;
     case 'x': x_orig = atoi(optarg); break;
     case 'y': y_orig = atoi(optarg); break;
-    case 'f': bdf_font_file = strdup(optarg); break;
+    case 'f': bdf_small_font_file = strdup(optarg); break;
+    case 'F': bdf_large_font_file = strdup(optarg); break;
     case 's': line_spacing = atoi(optarg); break;
     case 'S': letter_spacing = atoi(optarg); break;
     case 'C':
@@ -114,6 +116,9 @@ int main(int argc, char *argv[]) {
       return usage(argv[0]);
     }
   }
+
+  const std::string LargeFontString(std::string(FontDirectoryString) + std::string(bdf_large_font_file));
+  const std::string SmallFontString(std::string(FontDirectoryString) + std::string(bdf_small_font_file));
 
   if (format_lines.empty()) {
     format_lines.push_back("%H:%M");
@@ -165,6 +170,9 @@ int main(int argc, char *argv[]) {
   next_time.tv_nsec = 0;
   struct tm tm;
 
+  int centerTimeSpacing = 5;
+  int centerDateSpacing = 2;
+
   signal(SIGTERM, InterruptHandler);
   signal(SIGINT, InterruptHandler);
 
@@ -177,7 +185,7 @@ int main(int argc, char *argv[]) {
     strftime(text_buffer, sizeof(text_buffer), format_lines[0].c_str(), &tm);
 
     rgb_matrix::DrawText(offscreen, largeFont,
-                           x, y + largeFont.baseline() + line_offset,
+                           x + centerTimeSpacing, y + largeFont.baseline() + line_offset,
                            color, NULL, text_buffer,
                            letter_spacing);
 
@@ -186,7 +194,7 @@ int main(int argc, char *argv[]) {
     strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
     
     rgb_matrix::DrawText(offscreen, smallFont,
-                           x, y + smallFont.baseline() + line_offset,
+                           x + centerDateSpacing, y + smallFont.baseline() + line_offset,
                            color, NULL, text_buffer,
                            letter_spacing);
                           
