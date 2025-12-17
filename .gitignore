@@ -1,4 +1,4 @@
 *.o
 /build/
-/matrixLib/*
-!/matrixLib/rgb-matrix.sh
+/lib/*
+!/lib/rgb-matrix.sh
