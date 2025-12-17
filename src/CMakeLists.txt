@@ -14,4 +14,4 @@ add_executable(display main.cxx)
 target_compile_features(display PUBLIC cxx_std_20)
 target_link_libraries(display MatrixWidgets GraphicsMagick RpiRgbLedMatrix)
 set_target_properties(display PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build)
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
