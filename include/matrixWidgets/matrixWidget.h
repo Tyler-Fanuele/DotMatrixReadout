@@ -21,13 +21,24 @@ class MatrixWidget : public MatrixDrawable{
         _children.clear();
     }
 
-    virtual void draw(rgb_matrix::FrameCanvas* canvas) override
+    void draw(rgb_matrix::FrameCanvas* canvas) final override
     {
         if (_show == true)
         {
+            tick();
             render(canvas);
         }
+        for (auto childWidget : _children)
+        {
+            if (childWidget)
+            {
+                childWidget->draw(canvas);
+            }
+            
+        }
     }
+
+    virtual bool tick() = 0;
 
     virtual bool render(rgb_matrix::FrameCanvas* canvas) = 0;
 

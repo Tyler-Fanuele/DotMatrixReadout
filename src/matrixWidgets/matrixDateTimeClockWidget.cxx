@@ -1,6 +1,6 @@
 #include <matrixDateTimeClockWidget.h>
 
-bool MatrixDateTimeClockWidget::render(rgb_matrix::FrameCanvas* canvas)
+bool MatrixDateTimeClockWidget::tick()
 {
     char text_buffer[256];
     // Sample current system time and convert to local broken-down time.
@@ -12,15 +12,15 @@ bool MatrixDateTimeClockWidget::render(rgb_matrix::FrameCanvas* canvas)
     
     _clock->setText(text_buffer);
 
-    _clock->render(canvas);
-
     strftime(text_buffer, sizeof(text_buffer), std::string("%a %D").c_str(), &tm);
 
     _date->setText(text_buffer);
+    return true;
+}
 
-    _date->render(canvas);
-    
-    _icon->render(canvas);
+bool MatrixDateTimeClockWidget::render(rgb_matrix::FrameCanvas* canvas)
+{
+
 
     return true;
 }

@@ -17,6 +17,7 @@ class MatrixTextWidget : public MatrixWidget
         delete _outlinedFont;
     }
 
+    bool tick() override {return true;}
     bool render(rgb_matrix::FrameCanvas* canvas) override;
 
     bool setFont(std::string fontFile);

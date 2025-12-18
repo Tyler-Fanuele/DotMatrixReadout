@@ -11,7 +11,7 @@ void MatrixApp::InterruptHandler(int signo)
 
 void MatrixApp::tick()
 {
-    _rootWidget->render(_canvas);
+    _rootWidget->draw(_canvas);
 }
 
 void MatrixApp::run()

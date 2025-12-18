@@ -61,6 +61,7 @@ class MatrixDateTimeClockWidget : public MatrixWidget
         _icon->setYOffset(y  + line_offset);
     }
 
+    bool tick() override;
     bool render(rgb_matrix::FrameCanvas* canvas);
 
     private:

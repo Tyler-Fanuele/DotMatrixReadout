@@ -21,6 +21,7 @@ class MatrixIconWidget : public MatrixWidget
         }
     }
 
+    bool tick() override {return true;}
     bool render(rgb_matrix::FrameCanvas* canvas);
 
     void setIcon(Magick::Image* image) 
