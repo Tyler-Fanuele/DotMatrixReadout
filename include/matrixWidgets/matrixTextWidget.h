@@ -1,23 +1,26 @@
+#pragma once
+
 #include <matrixWidget.h>
 
 class MatrixTextWidget : public MatrixWidget
 {
     public:
-    MatrixTextWidget(rgb_matrix::FrameCanvas* canvas)
-      : MatrixWidget(canvas), _letterSpacing(0), _color(255,255,0), _font(), _outlinedFont(NULL)
-    {
-        setXOffset(0);
-        setYOffset(0);
-    }
+        MatrixTextWidget(MatrixWidget* parent = nullptr)
+            : MatrixWidget(parent), _letterSpacing(0), _color(255,255,0), _font(), _outlinedFont(NULL)
+        {
+                setXOffset(0);
+                setYOffset(0);
+        }
 
     ~MatrixTextWidget()
     {
         delete _outlinedFont;
     }
 
-    bool render(void) override;
+    bool render(rgb_matrix::FrameCanvas* canvas) override;
 
     bool setFont(std::string fontFile);
+    const rgb_matrix::Font& font() {return _font;}
 
     void setLetterSpacing(int letterSpacing) { _letterSpacing = letterSpacing; } 
     int letterSpacing(void) const { return _letterSpacing; }

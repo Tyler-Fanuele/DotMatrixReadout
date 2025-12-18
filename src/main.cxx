@@ -3,6 +3,8 @@
 #include <Magick++.h>
 
 #include <matrixTextWidget.h>
+#include <matrixDateTimeClockWidget.h>
+#include <matrixApp.h>
 
 #include <getopt.h>
 #include <signal.h>
@@ -63,188 +65,16 @@ static bool FullSaturation(const Color &c) {
 int main(int argc, char *argv[]) {
   // Initialize ImageMagick / GraphicsMagick++ library before any Magick++ use.
   Magick::InitializeMagick(*argv);
-  RGBMatrix::Options matrix_options;
-  rgb_matrix::RuntimeOptions runtime_opt;
-  if (!rgb_matrix::ParseOptionsFromFlags(&argc, &argv,
-                                         &matrix_options, &runtime_opt)) {
-    return usage(argv[0]);
-  }
 
-  // We accept multiple format lines
+  MatrixApp* app = new MatrixApp(argc, argv);
 
-  std::vector<std::string> format_lines;
-  Color color(255, 255, 0);
-  Color bg_color(0, 0, 0);
-  Color outline_color(0,0,0);
-  bool with_outline = false;
+  MatrixDateTimeClockWidget* dateTimeClock = new MatrixDateTimeClockWidget(nullptr);
 
-  const char *bdf_large_font_file = NULL;
-  const char *bdf_small_font_file = NULL;
-  int x_orig = 0;
-  int y_orig = 0;
-  int letter_spacing = 0;
-  int line_spacing = 0;
+  app->setRootWidget(dateTimeClock);
 
-  int opt;
-  while ((opt = getopt(argc, argv, "x:y:f:F:C:B:O:s:S:d:")) != -1) {
-    switch (opt) {
-    case 'd': format_lines.push_back(optarg); break;
-    case 'x': x_orig = atoi(optarg); break;
-    case 'y': y_orig = atoi(optarg); break;
-    case 'f': bdf_small_font_file = strdup(optarg); break;
-    case 'F': bdf_large_font_file = strdup(optarg); break;
-    case 's': line_spacing = atoi(optarg); break;
-    case 'S': letter_spacing = atoi(optarg); break;
-    case 'C':
-      if (!parseColor(&color, optarg)) {
-        fprintf(stderr, "Invalid color spec: %s\n", optarg);
-        return usage(argv[0]);
-      }
-      break;
-    case 'B':
-      if (!parseColor(&bg_color, optarg)) {
-        fprintf(stderr, "Invalid background color spec: %s\n", optarg);
-        return usage(argv[0]);
-      }
-      break;
-    case 'O':
-      if (!parseColor(&outline_color, optarg)) {
-        fprintf(stderr, "Invalid outline color spec: %s\n", optarg);
-        return usage(argv[0]);
-      }
-      with_outline = true;
-      break;
-    default:
-      return usage(argv[0]);
-    }
-  }
+  app->run();
 
-  const std::string LargeFontString(std::string(FontDirectoryString) + std::string(bdf_large_font_file));
-  const std::string SmallFontString(std::string(FontDirectoryString) + std::string(bdf_small_font_file));
-
-  if (format_lines.empty()) {
-    format_lines.push_back("%H:%M");
-  }
-
-
-  /*
-   * Load font. This needs to be a filename with a bdf bitmap font.
-   */
-  rgb_matrix::Font largeFont;
-  if (!largeFont.LoadFont(LargeFontString.c_str())) {
-    fprintf(stderr, "Couldn't load font '%s'\n", LargeFontString.c_str());
-    return 1;
-  }
-  rgb_matrix::Font *outline_font = NULL;
-  if (with_outline) {
-    outline_font = largeFont.CreateOutlineFont();
-  }
-
-  rgb_matrix::Font smallFont;
-  if (!smallFont.LoadFont(SmallFontString.c_str())) {
-    fprintf(stderr, "Couldn't load font '%s'\n", SmallFontString.c_str());
-    return 1;
-  }
-  rgb_matrix::Font *small_outline_font = NULL;
-  if (with_outline) {
-    small_outline_font = smallFont.CreateOutlineFont();
-  }
-
-  RGBMatrix *matrix = RGBMatrix::CreateFromOptions(matrix_options, runtime_opt);
-  if (matrix == NULL)
-    return 1;
-
-  const bool all_extreme_colors = (matrix_options.brightness == 100)
-    && FullSaturation(color)
-    && FullSaturation(bg_color)
-    && FullSaturation(outline_color);
-  if (all_extreme_colors)
-    matrix->SetPWMBits(1);
-
-  const int x = x_orig;
-  int y = y_orig;
-
-  FrameCanvas *offscreen = matrix->CreateFrameCanvas();
-
-  char text_buffer[256];
-  struct timespec next_time;
-  struct tm tm;
-
-  int centerTimeSpacing = 5;
-  int centerDateSpacing = 2;
-
-  signal(SIGTERM, InterruptHandler);
-  signal(SIGINT, InterruptHandler);
-
-  MatrixTextWidget* clockLine = new MatrixTextWidget(offscreen);
-  clockLine->setFont(LargeFontString.c_str());
-  clockLine->setColor(color);
-
-  while (!interrupt_received) {
-    offscreen->Fill(bg_color.r, bg_color.g, bg_color.b);
-
-    // Sample current system time and convert to local broken-down time.
-    struct timespec now;
-    clock_gettime(CLOCK_REALTIME, &now);
-    localtime_r(&now.tv_sec, &tm);
-
-    int line_offset = 0;
-
-    strftime(text_buffer, sizeof(text_buffer), format_lines[0].c_str(), &tm);
-
-    clockLine->setXOffset(x + centerTimeSpacing);
-    clockLine->setYOffset(y + largeFont.baseline() + line_offset);
-    clockLine->setLetterSpacing(letter_spacing);
-    clockLine->setText(text_buffer);
-    clockLine->show();
-
-    clockLine->draw();
-
-    
-    line_offset += largeFont.height() + line_spacing;
-
-    // Only draw a second line if the user provided one.
-    strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
-    rgb_matrix::DrawText(offscreen, smallFont,
-                             x + centerDateSpacing, y + smallFont.baseline() + line_offset,
-                             color, NULL, text_buffer,
-                             letter_spacing);
-    const char* bitmapPath = "./assets/icons/Heart5x5.bmp";
-
-    Magick::Image img;
-    try {
-      img.read(bitmapPath);              // path relative to cwd
-      img.scale(Magick::Geometry(5, 5));      // scale to 8x8
-      // Draw scaled image onto offscreen:
-      for (int y = 0; y < (int)img.rows(); ++y) {
-        for (int x = 0; x < (int)img.columns(); ++x) {
-          Magick::Color c = img.pixelColor(x, y);
-          // Convert Magick quantum to 0-255. Use the helper in the viewer:
-          uint8_t R = ScaleQuantumToChar(c.redQuantum());
-          uint8_t G = ScaleQuantumToChar(c.greenQuantum());
-          uint8_t B = ScaleQuantumToChar(c.blueQuantum());
-          offscreen->SetPixel(56 + x, y  + line_offset, R, G, B);
-        }
-      }
-    } catch (std::exception &e) {
-      fprintf(stderr, "Image load/scale error: %s\n", e.what());
-    }
-
-    // Compute absolute next-second time to sleep until (align to whole seconds).
-    next_time = now;
-    next_time.tv_sec += 1;
-    next_time.tv_nsec = 0;
-
-    // Wait until we're ready to show it.
-    clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next_time, NULL);
-
-    // Atomic swap with double buffer
-    offscreen = matrix->SwapOnVSync(offscreen);
-    clockLine->setCanvas(offscreen);
-  }
-
-  // Finished. Shut down the RGB matrix.
-  delete matrix;
+  delete app;
 
   std::cout << std::endl;  // Create a fresh new line after ^C on screen
   return 0;

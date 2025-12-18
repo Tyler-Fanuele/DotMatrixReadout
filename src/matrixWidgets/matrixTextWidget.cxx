@@ -1,8 +1,8 @@
 #include <matrixTextWidget.h>
 
-bool MatrixTextWidget::render(void)
+bool MatrixTextWidget::render(rgb_matrix::FrameCanvas* canvas)
 {
-    rgb_matrix::DrawText(canvas(), _font,
+    rgb_matrix::DrawText(canvas, _font,
                            _xOffset, _yOffset,
                            _color, NULL, _text.c_str(),
                            _letterSpacing);
