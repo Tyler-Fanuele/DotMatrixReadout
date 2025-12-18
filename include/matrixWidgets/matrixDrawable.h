@@ -14,6 +14,9 @@ class MatrixDrawable
     void setYOffset(int yOffset) { _yOffset = yOffset; }
     int yOffset(void) const { return _yOffset; }
 
+    void setCanvas(rgb_matrix::FrameCanvas* canvas) { _canvas = canvas; }
+    rgb_matrix::FrameCanvas* canvas() { return _canvas; }
+
     protected:
     int _xOffset;
     int _yOffset;

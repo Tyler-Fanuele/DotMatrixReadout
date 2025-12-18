@@ -2,6 +2,8 @@
 #include <graphics.h>
 #include <Magick++.h>
 
+#include <matrixTextWidget.h>
+
 #include <getopt.h>
 #include <signal.h>
 #include <stdio.h>
@@ -174,6 +176,10 @@ int main(int argc, char *argv[]) {
   signal(SIGTERM, InterruptHandler);
   signal(SIGINT, InterruptHandler);
 
+  MatrixTextWidget* clockLine = new MatrixTextWidget(offscreen);
+  clockLine->setFont(LargeFontString.c_str());
+  clockLine->setColor(color);
+
   while (!interrupt_received) {
     offscreen->Fill(bg_color.r, bg_color.g, bg_color.b);
 
@@ -186,22 +192,23 @@ int main(int argc, char *argv[]) {
 
     strftime(text_buffer, sizeof(text_buffer), format_lines[0].c_str(), &tm);
 
-    rgb_matrix::DrawText(offscreen, largeFont,
-                           x + centerTimeSpacing, y + largeFont.baseline() + line_offset,
-                           color, NULL, text_buffer,
-                           letter_spacing);
+    clockLine->setXOffset(x + centerTimeSpacing);
+    clockLine->setYOffset(y + largeFont.baseline() + line_offset);
+    clockLine->setLetterSpacing(letter_spacing);
+    clockLine->setText(text_buffer);
+    clockLine->show();
 
+    clockLine->draw();
+
+    
     line_offset += largeFont.height() + line_spacing;
 
     // Only draw a second line if the user provided one.
-    if (format_lines.size() > 1) {
-      strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
-      rgb_matrix::DrawText(offscreen, smallFont,
+    strftime(text_buffer, sizeof(text_buffer), format_lines[1].c_str(), &tm);
+    rgb_matrix::DrawText(offscreen, smallFont,
                              x + centerDateSpacing, y + smallFont.baseline() + line_offset,
                              color, NULL, text_buffer,
                              letter_spacing);
-    }
-
     const char* bitmapPath = "./assets/icons/Heart5x5.bmp";
 
     Magick::Image img;
@@ -233,6 +240,7 @@ int main(int argc, char *argv[]) {
 
     // Atomic swap with double buffer
     offscreen = matrix->SwapOnVSync(offscreen);
+    clockLine->setCanvas(offscreen);
   }
 
   // Finished. Shut down the RGB matrix.

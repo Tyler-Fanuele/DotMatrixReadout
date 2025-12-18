@@ -2,7 +2,11 @@
 
 bool MatrixTextWidget::render(void)
 {
-    
+    rgb_matrix::DrawText(canvas(), _font,
+                           _xOffset, _yOffset,
+                           _color, NULL, _text.c_str(),
+                           _letterSpacing);
+    return true;
 }
 
 bool MatrixTextWidget::setFont(std::string fontFile)
