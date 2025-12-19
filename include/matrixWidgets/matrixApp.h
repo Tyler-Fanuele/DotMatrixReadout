@@ -27,8 +27,6 @@ class MatrixApp
 
         _canvas = _matrix->CreateFrameCanvas();
 
-        _matrix->SetPWMBits(1);
-
         interrupt_received = 0;
 
         signal(SIGTERM, InterruptHandler);

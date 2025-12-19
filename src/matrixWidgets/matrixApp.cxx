@@ -1,6 +1,11 @@
 #include <matrixApp.h>
 #include <ostream>
 #include <iostream>
+
+#include <poll.h>
+#include <unistd.h>
+
+
 volatile sig_atomic_t MatrixApp::interrupt_received = 0;
 
 void MatrixApp::InterruptHandler(int signo)
@@ -16,8 +21,22 @@ void MatrixApp::tick()
 
 void MatrixApp::run()
 {
+    struct pollfd fd;
+    fd.fd = STDIN_FILENO;
+    fd.events = POLLIN;
     while (!interrupt_received) 
-    {
+    {   
+        int ret = poll(&fd, 1, 1); // Wait for input with a timeout
+        if (ret > 0) {
+            char buffer[100];
+            ssize_t n = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
+            if (n > 0) {
+                buffer[n] = '\0';
+                if (n > 0 && buffer[n-1] == '\n') buffer[n-1] = '\0';
+                std::cout << "Input received: " << buffer << std::endl;
+            }
+        }
+
         rgb_matrix::Color bg_color(0, 0, 0);
 
         _canvas->Fill(bg_color.r, bg_color.g, bg_color.b);
