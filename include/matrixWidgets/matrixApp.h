@@ -1,6 +1,6 @@
 #pragma once
 
-#include <matrixWidget.h>
+#include <matrixDrawable.h>
 #include <stdexcept>
 
 #include <signal.h>
@@ -12,8 +12,6 @@ class MatrixApp
     {
         rgb_matrix::RGBMatrix::Options matrix_options;
         rgb_matrix::RuntimeOptions runtime_opt;
-
-
 
         if (!rgb_matrix::ParseOptionsFromFlags(&argc, &argv,
                                          &matrix_options, &runtime_opt)) 
@@ -29,7 +27,7 @@ class MatrixApp
 
         _canvas = _matrix->CreateFrameCanvas();
 
-        //_matrix->SetPWMBits(1);
+        _matrix->SetPWMBits(1);
 
         interrupt_received = 0;
 
@@ -51,11 +49,11 @@ class MatrixApp
     void tick();
     void run();
 
-    void setRootWidget(MatrixWidget* rootWidget) 
+    void setRootWidget(MatrixDrawable* rootWidget) 
     {
         _rootWidget = rootWidget;
     }
-    MatrixWidget* rootWidget() {return _rootWidget;}
+    MatrixDrawable* rootWidget() {return _rootWidget;}
 
     private:
 
@@ -66,7 +64,7 @@ class MatrixApp
     struct tm tm;
 
 
-    MatrixWidget* _rootWidget;
+    MatrixDrawable* _rootWidget;
 
     rgb_matrix::RGBMatrix* _matrix;
     rgb_matrix::FrameCanvas* _canvas;

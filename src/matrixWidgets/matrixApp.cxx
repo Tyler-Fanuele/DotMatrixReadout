@@ -31,9 +31,8 @@ void MatrixApp::run()
 
         //Compute absolute next-second time to sleep until (align to whole seconds).
         next_time = now;
-        //next_time.tv_sec += 1;
         next_time.tv_sec += 0;
-        next_time.tv_nsec = 500;
+        next_time.tv_nsec += 500;
 
         clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &next_time, NULL);
 

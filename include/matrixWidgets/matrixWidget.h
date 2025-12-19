@@ -1,6 +1,7 @@
 #pragma once
 
 #include <matrixDrawable.h>
+#include <matrixApp.h>
 
 class MatrixWidget : public MatrixDrawable{
     public:
@@ -9,6 +10,7 @@ class MatrixWidget : public MatrixDrawable{
         if (parent != nullptr)
         {
             parent->addChild(this);
+            _app = &parent->app();
         }
     }
 
@@ -21,22 +23,7 @@ class MatrixWidget : public MatrixDrawable{
         _children.clear();
     }
 
-    void draw(rgb_matrix::FrameCanvas* canvas) final override
-    {
-        if (_show == true)
-        {
-            tick();
-            render(canvas);
-        }
-        for (auto childWidget : _children)
-        {
-            if (childWidget)
-            {
-                childWidget->draw(canvas);
-            }
-            
-        }
-    }
+    void draw(rgb_matrix::FrameCanvas* canvas) final override;
 
     virtual bool tick() = 0;
 
@@ -46,13 +33,15 @@ class MatrixWidget : public MatrixDrawable{
     void show() {_show = true;}
     void hide() {_show = false;}
 
-    
+    const MatrixApp& app() const { return *_app; }
 
     private:
 
-    void addChild(MatrixWidget* parent) { _children.push_back(parent); }
+    void addChild(MatrixWidget* child) { _children.push_back(child); }
 
     bool _show = true;
 
     std::vector<MatrixWidget*> _children;
+    const MatrixApp* _app = nullptr;
+
 };
